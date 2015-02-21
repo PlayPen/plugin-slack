@@ -142,7 +142,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown, promote");
+                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send");
                     break;
 
                 case "list":
@@ -163,6 +163,14 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "promote":
                     runPromoteCommand(args);
+                    break;
+
+                case "generate-keypair":
+                    runGenerateKeypairCommand(args);
+                    break;
+
+                case "send":
+                    runSendCommand(args);
                     break;
             }
         }
@@ -364,5 +372,74 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         else {
             sendMessage("Unable to promote package " + id + " (" + version + ")");
         }
+    }
+
+    private void runGenerateKeypairCommand(String[] args) {
+        if(args.length != 2) {
+            sendMessage("Usage: @playpen generate-keypair\n" +
+                    "Generates a new coordinator keypair.");
+            return;
+        }
+
+        LocalCoordinator coord = Network.get().createCoordinator();
+        sendMessage("Here's your new coordinator keypair:\n" +
+                "  uuid: " + coord.getUuid() + "\n" +
+                "  secret key: " + coord.getKey());
+    }
+
+    private void runSendCommand(String[] args) {
+        if(args.length < 5) {
+            sendMessage("Usage: @playpen send <coordinator> <server> <input...>\n" +
+                    "Sends a command to the console of a server." +
+                    "Coordinator and server accept regex." +
+                    "For safety, all regex will have ^ prepended and $ appended.");
+            return;
+        }
+
+        Pattern coordPattern = Pattern.compile('^' + args[2] + '$');
+        Pattern serverPattern = Pattern.compile('^' + args[3] + "$");
+        StringBuilder builder = new StringBuilder();
+        for(int i = 4; i < args.length; ++i) {
+            builder.append(args[i] + (i == args.length - 1? '\n' : ' '));
+        }
+        String input = builder.toString();
+
+        sendMessage("One moment please...");
+
+        Map<String, List<String>> servers = new HashMap<>();
+        for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
+            if(coordPattern.matcher(coord.getUuid()).matches() ||
+                    (coord.getName() != null && coordPattern.matcher(coord.getName()).matches())) {
+                List<String> serverList = new LinkedList<>();
+                for(Server server : coord.getServers().values()) {
+                    if(serverPattern.matcher(server.getUuid()).matches() ||
+                            (server.getName() != null && serverPattern.matcher(server.getName()).matches())) {
+                        serverList.add(server.getUuid());
+                    }
+                }
+
+                if(!serverList.isEmpty())
+                    servers.put(coord.getUuid(), serverList);
+            }
+        }
+
+        if(servers.isEmpty()) {
+            sendMessage("I couldn't find any servers to send input to matching those patterns.");
+            return;
+        }
+
+        for(Map.Entry<String, List<String>> entry : servers.entrySet()) {
+            String coord = entry.getKey();
+            for(String server : entry.getValue()) {
+                if(Network.get().sendInput(coord, server, input)) {
+                    sendMessage("Sent input to server " + server);
+                }
+                else {
+                    sendMessage("Unable to send input to server " + server);
+                }
+            }
+        }
+
+        sendMessage("Send operation completed!");
     }
 }
