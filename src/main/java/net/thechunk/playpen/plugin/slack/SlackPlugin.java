@@ -142,7 +142,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision");
+                            "help, list, provision, deprovision, shutdown");
                     break;
 
                 case "list":
@@ -155,6 +155,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "deprovision":
                     runDeprovisionCommand(args);
+                    break;
+
+                case "shutdown":
+                    runShutdownCommand(args);
                     break;
             }
         }
@@ -316,5 +320,17 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         sendMessage("Deprovision operation complete!");
+    }
+
+    private void runShutdownCommand(String[] args) {
+        if(args.length != 3) {
+            sendMessage("Usage: @playpen shutdown <coordinator>\n" +
+                    "Shuts down a single coordinator and any related servers");
+            return;
+        }
+
+        if(!Network.get().shutdownCoordinator(args[2])) {
+            sendMessage("Unable to shutdown coordinator " + args[2]);
+        }
     }
 }
