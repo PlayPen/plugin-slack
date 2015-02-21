@@ -296,7 +296,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                     }
                 }
 
-                if(!servers.isEmpty())
+                if(!serverList.isEmpty())
                     servers.put(coord.getUuid(), serverList);
             }
         }
