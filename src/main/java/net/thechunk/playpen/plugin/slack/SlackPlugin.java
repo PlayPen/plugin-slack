@@ -135,14 +135,14 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 sendMessage("Hi there! Say '@playpen help' for a list of commands.");
             }
 
-            switch(args[1]) {
+            switch(args[1].toLowerCase()) {
                 default:
                     sendMessage("Unknown command '" + args[1] + "', try saying '@playpen help'!");
                     break;
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown");
+                            "help, list, provision, deprovision, shutdown, promote");
                     break;
 
                 case "list":
@@ -159,6 +159,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "shutdown":
                     runShutdownCommand(args);
+                    break;
+
+                case "promote":
+                    runPromoteCommand(args);
                     break;
             }
         }
@@ -331,6 +335,34 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         if(!Network.get().shutdownCoordinator(args[2])) {
             sendMessage("Unable to shutdown coordinator " + args[2]);
+        }
+    }
+
+    private void runPromoteCommand(String[] args) {
+        if(args.length != 4) {
+            sendMessage("Usage: @playpen promote <package-id> <package-version>\n" +
+                    "Promotes a package.");
+            return;
+        }
+
+        String id = args[2];
+        String version = args[3];
+        if(version.equalsIgnoreCase("promoted")) {
+            sendMessage("Cannot promote a package of version 'promoted'");
+            return;
+        }
+
+        P3Package p3 = Network.get().getPackageManager().resolve(id, version);
+        if(p3 == null) {
+            sendMessage("Sorry, I can't seem to find package " + id + " (" + version + ")");
+            return;
+        }
+
+        if(Network.get().getPackageManager().promote(p3)) {
+            sendMessage("Promoted package " + id + " (" + version + ")");
+        }
+        else {
+            sendMessage("Unable to promote package " + id + " (" + version + ")");
         }
     }
 }
