@@ -309,10 +309,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         for(Map.Entry<String, List<String>> entry : servers.entrySet()) {
             String coord = entry.getKey();
             for(String server : entry.getValue()) {
-                if(Network.get().deprovision(coord, server, force)) {
-                    sendMessage("Sent deprovision for " + server + " on coordinator " + coord);
-                }
-                else {
+                if(!Network.get().deprovision(coord, server, force)) {
                     sendMessage("Unable to send deprovision for " + server + " on coordinator " + coord);
                 }
             }
