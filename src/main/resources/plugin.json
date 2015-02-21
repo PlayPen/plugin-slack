@@ -1,0 +1,5 @@
+{
+  "id": "slack",
+  "version": "1.0",
+  "main": "net.thechunk.playpen.plugin.slack.SlackPlugin"
+}
