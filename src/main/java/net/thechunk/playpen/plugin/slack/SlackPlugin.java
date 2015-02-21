@@ -1,7 +1,6 @@
 package net.thechunk.playpen.plugin.slack;
 
-import com.ullink.slack.simpleslackapi.SlackChannel;
-import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.*;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.coordinator.CoordinatorMode;
@@ -14,9 +13,10 @@ import net.thechunk.playpen.plugin.AbstractPlugin;
 import net.thechunk.playpen.plugin.EventManager;
 
 @Log4j2
-public class SlackPlugin extends AbstractPlugin implements INetworkListener {
+public class SlackPlugin extends AbstractPlugin implements INetworkListener, SlackMessageListener {
     private SlackSession session = null;
     private SlackChannel channel = null;
+    private SlackUser user = null;
 
     public void sendMessage(String message) {
         session.sendMessage(channel, message, null, "playpen", null);
@@ -30,12 +30,19 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener {
         }
 
         session = SlackSessionFactory.createWebSocketSlackSession(getConfig().getString("api-key"));
+        session.addMessageListener(this);
         session.connect();
 
         channel = session.findChannelByName(getConfig().getString("channel"));
+        user = session.findUserByUserName("playpen");
 
         if(channel == null) {
             log.fatal("Unable to find channel " + getConfig().getString("channel"));
+            return false;
+        }
+
+        if(user == null) {
+            log.fatal("Unable to find user playpen");
             return false;
         }
 
@@ -101,5 +108,82 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener {
     @Override
     public void onListenerRemoved(EventManager<INetworkListener> eventManager) {
         // don't care
+    }
+
+    @Override
+    public void onSessionLoad(SlackSession session) {
+        // don't care
+    }
+
+    @Override
+    public void onMessage(SlackMessage message) {
+        if(!message.getChannel().getId().equals(channel.getId()))
+            return; // we only want our channel
+
+        if(message.getSender().getId().equals(user.getId()))
+            return; // ignore
+
+        String myUser = ("<@" + user.getId() + ">").toLowerCase();
+
+        if(message.getMessageContent().toLowerCase().startsWith(myUser)) {
+            String[] args = message.getMessageContent().split(" ");
+            if(args.length < 2) {
+                sendMessage("Hi there! Say '@playpen help' for a list of commands.");
+            }
+
+            switch(args[1]) {
+                default:
+                    sendMessage("Unknown command '" + args[1] + "', try saying '@playpen help'!");
+                    break;
+
+                case "help":
+                    sendMessage("Available commands:\n" +
+                            "help, list");
+                    break;
+
+                case "list":
+                    runListCommand(args);
+                    break;
+            }
+        }
+    }
+
+    private void runListCommand(String[] args) {
+        if(args.length != 2) {
+            sendMessage("Usage: @playpen list\n" +
+                    "Displays a list of all active coordinators and servers.");
+            return;
+        }
+
+        sendMessage("Give me a moment...");
+
+        int count = 0;
+
+        String result = "";
+        for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
+            if(!coord.isEnabled() || coord.getChannel() == null || !coord.getChannel().isActive())
+                continue;
+
+            count++;
+
+            result += "Coordinator " + coord.getName() + '\n';
+            result += "  uuid: " + coord.getUuid() + '\n';
+
+            for(Server server : coord.getServers().values()) {
+                if(!server.isActive())
+                    continue;
+
+                result += "  Server " + server.getName() + '\n';
+                result += "    uuid: " + server.getUuid() + '\n';
+                result += "    package: " + server.getP3().getId() + " (" + server.getP3().getVersion() + ")\n";
+            }
+        }
+
+        if(count == 0) {
+            sendMessage("There are no active coordinators for me to list!");
+            return;
+        }
+
+        sendMessage(result);
     }
 }
