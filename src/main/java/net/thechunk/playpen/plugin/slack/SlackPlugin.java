@@ -19,7 +19,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener {
     private SlackChannel channel = null;
 
     public void sendMessage(String message) {
-        session.sendMessage(channel, message, null, null, null);
+        session.sendMessage(channel, message, null, "playpen", null);
     }
 
     @Override
