@@ -142,7 +142,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send");
+                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send, freeze");
                     break;
 
                 case "list":
@@ -171,6 +171,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "send":
                     runSendCommand(args);
+                    break;
+
+                case "freeze":
+                    runFreezeCommand(args);
                     break;
             }
         }
@@ -428,7 +432,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         if(servers.isEmpty()) {
-            sendMessage("I couldn't find any servers to send input to matching those patterns.");
+            sendMessage("I couldn't find any servers to send input to which match those patterns.");
             return;
         }
 
@@ -445,5 +449,56 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         sendMessage("Send operation completed!");
+    }
+
+    private void runFreezeCommand(String[] args) {
+        if(args.length != 4) {
+            sendMessage("Usage: @playpen freeze <coordinator> <server>\n" +
+                    "Sends a command to the console of a server." +
+                    "Coordinator and server accept regex.\n" +
+                    "For safety, all regex will have ^ prepended and $ appended.");
+            return;
+        }
+
+        Pattern coordPattern = Pattern.compile('^' + args[2] + '$');
+        Pattern serverPattern = Pattern.compile('^' + args[3] + "$");
+
+        sendMessage("One moment please...");
+
+        Map<String, List<String>> servers = new HashMap<>();
+        for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
+            if(coordPattern.matcher(coord.getUuid()).matches() ||
+                    (coord.getName() != null && coordPattern.matcher(coord.getName()).matches())) {
+                List<String> serverList = new LinkedList<>();
+                for(Server server : coord.getServers().values()) {
+                    if(serverPattern.matcher(server.getUuid()).matches() ||
+                            (server.getName() != null && serverPattern.matcher(server.getName()).matches())) {
+                        serverList.add(server.getUuid());
+                    }
+                }
+
+                if(!serverList.isEmpty())
+                    servers.put(coord.getUuid(), serverList);
+            }
+        }
+
+        if(servers.isEmpty()) {
+            sendMessage("I couldn't find any servers to freeze that match those patterns.");
+            return;
+        }
+
+        for(Map.Entry<String, List<String>> entry : servers.entrySet()) {
+            String coord = entry.getKey();
+            for(String server : entry.getValue()) {
+                if(Network.get().freezeServer(coord, server)) {
+                    sendMessage("Sent freeze to server " + server);
+                }
+                else {
+                    sendMessage("Unable to send freeze to server " + server);
+                }
+            }
+        }
+
+        sendMessage("Freeze operation completed!");
     }
 }
