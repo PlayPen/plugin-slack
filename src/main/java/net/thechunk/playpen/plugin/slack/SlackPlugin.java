@@ -10,10 +10,7 @@ import net.thechunk.playpen.p3.P3Package;
 import net.thechunk.playpen.plugin.AbstractPlugin;
 import net.thechunk.playpen.plugin.EventManager;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Log4j2
@@ -142,7 +139,8 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send, freeze");
+                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send, freeze, " +
+                            "list-packages");
                     break;
 
                 case "list":
@@ -175,6 +173,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "freeze":
                     runFreezeCommand(args);
+                    break;
+
+                case "list-packages":
+                    runListPackagesCommand(args);
                     break;
             }
         }
@@ -500,5 +502,25 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         sendMessage("Freeze operation completed!");
+    }
+
+    private void runListPackagesCommand(String[] args) {
+        if(args.length != 2) {
+            sendMessage("Usage: @playpen list-packages\n" +
+                    "Displays a list of all available packages on the network coordinator.");
+            return;
+        }
+
+        Set<P3Package.P3PackageInfo> p3list = Network.get().getPackageManager().getPackageList();
+        if(p3list.size() == 0) {
+            sendMessage("There are no packages for me to list!");
+        }
+
+        String result = "";
+        for(P3Package.P3PackageInfo p3info : p3list) {
+            result += p3info.getId() + " (" + p3info.getVersion() + ")\n";
+        }
+
+        sendMessage(result);
     }
 }
