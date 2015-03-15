@@ -275,7 +275,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         P3Package p3 = Network.get().getPackageManager().resolve(id, version);
         if(p3 == null) {
-            sendMessage("Unable to resolve package " + id + "(" + version + ")");
+            sendMessage("Unable to resolve package " + id + " (" + version + ")");
             return;
         }
 
