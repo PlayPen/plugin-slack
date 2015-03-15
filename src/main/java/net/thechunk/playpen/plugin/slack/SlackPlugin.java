@@ -9,6 +9,7 @@ import net.thechunk.playpen.coordinator.network.*;
 import net.thechunk.playpen.p3.P3Package;
 import net.thechunk.playpen.plugin.AbstractPlugin;
 import net.thechunk.playpen.plugin.EventManager;
+import net.thechunk.playpen.plugin.IPlugin;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -140,7 +141,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 case "help":
                     sendMessage("Available commands:\n" +
                             "help, list, provision, deprovision, shutdown, promote, generate-keypair, send, freeze, " +
-                            "list-packages");
+                            "list-packages, list-plugins");
                     break;
 
                 case "list":
@@ -178,6 +179,9 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 case "list-packages":
                     runListPackagesCommand(args);
                     break;
+
+                case "list-plugins":
+                    runListPluginsCommand(args);
             }
         }
     }
@@ -519,6 +523,21 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         String result = "";
         for(P3Package.P3PackageInfo p3info : p3list) {
             result += p3info.getId() + " (" + p3info.getVersion() + ")\n";
+        }
+
+        sendMessage(result);
+    }
+
+    private void runListPluginsCommand(String[] args) {
+        if(args.length != 2) {
+            sendMessage("Usage: @playpen list-packages\n" +
+                    "Displays a list of all plugins on the network coordinator.");
+            return;
+        }
+
+        String result = "";
+        for(IPlugin plugin : Network.get().getPluginManager().getPlugins().values()) {
+            result += plugin.getSchema().getId() + " (" + plugin.getSchema().getVersion() + ")\n";
         }
 
         sendMessage(result);
