@@ -140,7 +140,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown, promote, generate-keypair, send, freeze, " +
+                            "help, list, provision, deprovision, shutdown, promote, send, freeze, " +
                             "list-packages, list-plugins");
                     break;
 
@@ -162,10 +162,6 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "promote":
                     runPromoteCommand(args);
-                    break;
-
-                case "generate-keypair":
-                    runGenerateKeypairCommand(args);
                     break;
 
                 case "send":
@@ -388,7 +384,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
     }
 
-    private void runGenerateKeypairCommand(String[] args) {
+    /*private void runGenerateKeypairCommand(String[] args) {
         if(args.length != 2) {
             sendMessage("Usage: @playpen generate-keypair\n" +
                     "Generates a new coordinator keypair.");
@@ -399,7 +395,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         sendMessage("Here's your new coordinator keypair:\n" +
                 "  uuid: " + coord.getUuid() + "\n" +
                 "  secret key: " + coord.getKey());
-    }
+    }*/
 
     private void runSendCommand(String[] args) {
         if(args.length < 5) {
