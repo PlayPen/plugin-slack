@@ -1,5 +1,6 @@
 package net.thechunk.playpen.plugin.slack;
 
+import com.google.common.base.Joiner;
 import com.ullink.slack.simpleslackapi.*;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import lombok.extern.log4j.Log4j2;
@@ -100,6 +101,14 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
     @Override
     public void onRequestShutdown(LocalCoordinator localCoordinator) {
         sendMessage("Shutting down coordinator " + localCoordinator.getName());
+    }
+
+    @Override
+    public void onPluginMessage(IPlugin plugin, String id, Object... args) {
+        if(id.equalsIgnoreCase("log")) {
+            String result = plugin.getSchema().getId() + ": " + Joiner.on(' ').join(args);
+            sendMessage(result);
+        }
     }
 
     @Override
