@@ -258,7 +258,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 continue;
 
             for(Server server : coord.getServers().values()) {
-                if(serverPattern.matcher(server.getName()).find() || !server.isActive())
+                if(!server.isActive() || !serverPattern.matcher(server.getName()).matches())
                     continue;
 
                 count++;
