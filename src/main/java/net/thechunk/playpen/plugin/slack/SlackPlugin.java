@@ -149,12 +149,16 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "help":
                     sendMessage("Available commands:\n" +
-                            "help, list, provision, deprovision, shutdown, promote, send, freeze, " +
+                            "help, list, show, provision, deprovision, shutdown, promote, send, freeze, " +
                             "list-packages, list-plugins");
                     break;
 
                 case "list":
                     runListCommand(args);
+                    break;
+
+                case "show":
+                    runShowCommand(args);
                     break;
 
                 case "provision":
@@ -228,6 +232,49 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         if(count == 0) {
             sendMessage("There are no active coordinators for me to list!");
+            return;
+        }
+
+        sendMessage(result);
+    }
+
+    private void runShowCommand(String[] args) {
+        if(args.length != 3) {
+            sendMessage("Usage: @playpen show <server>\n" +
+                    "Displays all servers that match the specified server.");
+            return;
+        }
+
+        sendMessage("Give me a moment...");
+
+        int count = 0;
+
+        String result = "";
+
+        Pattern serverPattern = Pattern.compile('^' + args[2] + '$');
+
+        for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
+            if(!coord.isEnabled() || coord.getChannel() == null || !coord.getChannel().isActive())
+                continue;
+
+            for(Server server : coord.getServers().values()) {
+                if(serverPattern.matcher(server.getName()).find() || !server.isActive())
+                    continue;
+
+                count++;
+
+                result += "  Server " + server.getName() + '\n';
+                result += "    uuid: " + server.getUuid() + '\n';
+                result += "    package: " + server.getP3().getId() + " (" + server.getP3().getVersion() + ")\n";
+
+                for(Map.Entry<String, String> entry : server.getProperties().entrySet()) {
+                    result += "    prop: " + entry.getKey() + " = " + entry.getValue() + '\n';
+                }
+            }
+        }
+
+        if(count == 0) {
+            sendMessage("There are no active servers that match that regex!");
             return;
         }
 
