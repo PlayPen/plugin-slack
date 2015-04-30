@@ -105,7 +105,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
     @Override
     public void onPluginMessage(IPlugin plugin, String id, Object... args) {
-        if(id.equalsIgnoreCase("log")) {
+        if("log".equalsIgnoreCase(id)) {
             String result = plugin.getSchema().getId() + ": " + Joiner.on(' ').join(args);
             sendMessage(result);
         }
@@ -150,7 +150,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 case "help":
                     sendMessage("Available commands:\n" +
                             "help, list, show, provision, deprovision, shutdown, promote, send, freeze, " +
-                            "list-packages, list-plugins");
+                            "list-packages, list-plugins, pass");
                     break;
 
                 case "list":
@@ -191,6 +191,11 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "list-plugins":
                     runListPluginsCommand(args);
+                    break;
+
+                case "pass":
+                    runPassCommand(args);
+                    break;
             }
         }
     }
@@ -594,5 +599,16 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         sendMessage(result);
+    }
+
+    private void runPassCommand(String[] args) {
+        if(args.length < 3) {
+            sendMessage("Usage: @playpen pass <command> [arguments...}\n" +
+                    "Passes a command to the plugin system. Individual plugins may choose to act on these commands.");
+            return;
+        }
+
+        String[] commandArgs = Arrays.copyOfRange(args, 2, args.length);
+        Network.get().pluginMessage(this, "command", commandArgs);
     }
 }
