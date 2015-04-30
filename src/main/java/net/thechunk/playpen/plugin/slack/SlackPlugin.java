@@ -265,6 +265,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 result += "  Server " + server.getName() + '\n';
                 result += "    uuid: " + server.getUuid() + '\n';
+                result += "    coordinator: " + coord.getName() + '\n';
                 result += "    package: " + server.getP3().getId() + " (" + server.getP3().getVersion() + ")\n";
 
                 for(Map.Entry<String, String> entry : server.getProperties().entrySet()) {
