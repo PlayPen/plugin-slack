@@ -1,8 +1,6 @@
 package com.ullink.slack.simpleslackapi;
 
-import java.io.IOException;
 import java.util.Collection;
-import com.ullink.slack.simpleslackapi.impl.SlackChatConfiguration;
 
 public interface SlackSession
 {
@@ -25,17 +23,11 @@ public interface SlackSession
 
     SlackBot findBotById(String botId);
 
-    void connect() throws IOException;
+    void connect();
 
-    SlackMessageHandle deleteMessage(String timeStamp, SlackChannel channel);
+    void sendMessage(SlackChannel channel, String message, SlackAttachment attachment, String username, String iconURL);
 
-    SlackMessageHandle sendMessage(SlackChannel channel, String message, SlackAttachment attachment, SlackChatConfiguration chatConfiguration);
-
-    SlackMessageHandle sendMessage(SlackChannel channel, String message, SlackAttachment attachment);
-    
-    SlackMessageHandle updateMessage(String timeStamp, SlackChannel channel, String message);
-
-    SlackMessageHandle sendMessageOverWebSocket(SlackChannel channel, String message, SlackAttachment attachment);
+    void sendMessageOverWebSocket(SlackChannel channel, String message, SlackAttachment attachment);
 
     void addMessageListener(SlackMessageListener listenerToAdd);
 

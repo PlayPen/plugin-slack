@@ -1,172 +1,83 @@
 package com.ullink.slack.simpleslackapi.impl;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.ullink.slack.simpleslackapi.SlackBot;
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import com.ullink.slack.simpleslackapi.SlackMessage;
-import com.ullink.slack.simpleslackapi.SlackMessage.SlackMessageSubType;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.SlackUser;
-import com.ullink.slack.simpleslackapi.events.EventType;
-import com.ullink.slack.simpleslackapi.events.SlackChannelArchived;
-import com.ullink.slack.simpleslackapi.events.SlackChannelCreated;
-import com.ullink.slack.simpleslackapi.events.SlackChannelDeleted;
-import com.ullink.slack.simpleslackapi.events.SlackChannelRenamed;
-import com.ullink.slack.simpleslackapi.events.SlackChannelUnarchived;
-import com.ullink.slack.simpleslackapi.events.SlackEvent;
-import com.ullink.slack.simpleslackapi.events.SlackGroupJoined;
 
 class SlackJSONMessageParser
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SlackJSONMessageParser.class);
 
-    static SlackEvent decode(SlackSession slackSession, JSONObject obj)
+    private SlackSession        slackSession;
+    private String              toParse;
+    private SlackMessage        slackMessage;
+
+    SlackJSONMessageParser(String toParse, SlackSession slackSession)
     {
-        String type = (String) obj.get("type");
-        if (type == null)
+        this.toParse = toParse;
+        this.slackSession = slackSession;
+    }
+
+    public SlackMessage getSlackMessage()
+    {
+        return slackMessage;
+    }
+
+    void parse() throws ParseException
+    {
+        LOGGER.debug("parsing message : " + toParse);
+        JSONParser parser = new JSONParser();
+        JSONObject obj = null;
+
+        try
         {
-            return parseSlackReply(obj);
+            obj = (JSONObject) parser.parse(toParse);
         }
-        EventType eventType = EventType.getByCode(type);
-        switch (eventType)
+        catch (ParseException e)
         {
-            case MESSAGE:
-                return extractMessageEvent(slackSession, obj);
-            case CHANNEL_CREATED:
-                return extractChannelCreatedEvent(slackSession, obj);
-            case CHANNEL_ARCHIVE:
-                return extractChannelArchiveEvent(slackSession, obj);
-            case CHANNEL_DELETED:
-                return extractChannelDeletedEvent(slackSession, obj);
-            case CHANNEL_RENAME:
-                return extractChannelRenamedEvent(slackSession, obj);
-            case CHANNEL_UNARCHIVE:
-                return extractChannelUnarchiveEvent(slackSession, obj);
-            case GROUP_JOINED:
-                return extractGroupJoinedEvent(slackSession, obj);
-            default:
-                return SlackEvent.UNKNOWN_EVENT;
+            e.printStackTrace();
         }
+
+        String messageType = (String) obj.get("type");
+        if (!"message".equals(messageType))
+        {
+            return;
+        }
+
+        slackMessage = decode(slackSession, obj);
     }
 
-    private static SlackGroupJoined extractGroupJoinedEvent(SlackSession slackSession, JSONObject obj)
-    {
-        JSONObject channelJSONObject = (JSONObject) obj.get("channel");
-        SlackChannel slackChannel = parseChannelDescription(channelJSONObject);
-        return new SlackGroupJoinedImpl(slackChannel);
-    }
-
-    private static SlackChannelRenamed extractChannelRenamedEvent(SlackSession slackSession, JSONObject obj)
-    {
-        String channelId = (String) obj.get("channel");
-        String newName = (String) obj.get("name");
-        return new SlackChannelRenamedImpl(slackSession.findChannelById(channelId), newName);
-    }
-
-    private static SlackChannelDeleted extractChannelDeletedEvent(SlackSession slackSession, JSONObject obj)
-    {
-        String channelId = (String) obj.get("channel");
-        return new SlackChannelDeletedImpl(slackSession.findChannelById(channelId));
-    }
-
-    private static SlackChannelUnarchived extractChannelUnarchiveEvent(SlackSession slackSession, JSONObject obj)
+    static SlackMessage decode(SlackSession slackSession, JSONObject obj)
     {
         String channelId = (String) obj.get("channel");
         String userId = (String) obj.get("user");
-        return new SlackChannelUnarchivedImpl(slackSession.findChannelById(channelId), slackSession.findUserById(userId));
-    }
-
-    private static SlackChannelArchived extractChannelArchiveEvent(SlackSession slackSession, JSONObject obj)
-    {
-        String channelId = (String) obj.get("channel");
-        String userId = (String) obj.get("user");
-        return new SlackChannelArchivedImpl(slackSession.findChannelById(channelId), slackSession.findUserById(userId));
-    }
-
-    private static SlackChannelCreated extractChannelCreatedEvent(SlackSession slackSession, JSONObject obj)
-    {
-        JSONObject channelJSONObject = (JSONObject) obj.get("channel");
-        SlackChannel channel = parseChannelDescription(channelJSONObject);
-        String creatorId = (String) channelJSONObject.get("creator");
-        SlackUser user = slackSession.findUserById(creatorId);
-        return new SlackChannelCreatedImpl(channel, user);
-    }
-
-    private static SlackEvent extractMessageEvent(SlackSession slackSession, JSONObject obj)
-    {
-        String channelId = (String) obj.get("channel");
-        SlackChannel channel = getChannel(slackSession, channelId);
-
-        String ts = (String) obj.get("ts");
-        SlackMessageSubType subType = SlackMessage.SlackMessageSubType.getByCode((String) obj.get("subtype"));
-        switch (subType)
-        {
-            case MESSAGE_CHANGED:
-                return parseMessageUpdated(obj, channel, ts);
-            case MESSAGE_DELETED:
-                return parseMessageDeleted(obj, channel, ts);
-            default:
-                return parseMessagePublished(obj, channel, ts, slackSession);
-        }
-    }
-
-    private static SlackEvent parseSlackReply(JSONObject obj)
-    {
-        Boolean ok = (Boolean) obj.get("ok");
-        Long replyTo = (Long) obj.get("reply_to");
-        String timestamp = (String) obj.get("ts");
-        return new SlackReplyImpl(ok, replyTo != null ? replyTo : -1, timestamp);
-    }
-
-    private static SlackChannel getChannel(SlackSession slackSession, String channelId)
-    {
+        String botId = (String) obj.get("bot_id");
+        SlackChannel channel = null;
         if (channelId != null)
         {
             if (channelId.startsWith("D"))
             {
                 // direct messaging, on the fly channel creation
-                return new SlackChannelImpl(channelId, channelId, "", "");
+                channel = new SlackChannelImpl(channelId, userId != null ? userId : botId, "", "");
             }
             else
             {
-                return slackSession.findChannelById(channelId);
+                channel = slackSession.findChannelById(channelId);
             }
         }
-        return null;
-    }
-
-    private static SlackMessageUpdatedImpl parseMessageUpdated(JSONObject obj, SlackChannel channel, String ts)
-    {
-        JSONObject message = (JSONObject) obj.get("message");
-        String text = (String) message.get("text");
-        String messageTs = (String) message.get("ts");
-        SlackMessageUpdatedImpl toto = new SlackMessageUpdatedImpl(channel,messageTs, ts, text);
-        return toto;
-    }
-
-    private static SlackMessageDeletedImpl parseMessageDeleted(JSONObject obj, SlackChannel channel, String ts)
-    {
-        String deletedTs = (String) obj.get("deleted_ts");
-        return new SlackMessageDeletedImpl(channel, deletedTs, ts);
-    }
-
-    private static SlackMessageImpl parseMessagePublished(JSONObject obj, SlackChannel channel, String ts, SlackSession slackSession)
-    {
-        String text = (String) obj.get("text");
-        String userId = (String) obj.get("user");
-        String botId = (String) obj.get("bot_id");
         SlackUser user = userId != null ? slackSession.findUserById(userId) : null;
         SlackBot bot = botId != null ? slackSession.findBotById(botId) : null;
-        return new SlackMessageImpl(text, bot, user, channel, SlackMessage.SlackMessageSubType.getByCode((String) obj.get("subtype")), ts);
-    }
 
-    private static SlackChannel parseChannelDescription(JSONObject channelJSONObject)
-    {
-        String id = (String) channelJSONObject.get("id");
-        String name = (String) channelJSONObject.get("name");
-        System.out.println(name);
-        String topic = null; // TODO
-        String purpose = null; // TODO
-        return new SlackChannelImpl(id, name, topic, purpose);
+        String text = (String) obj.get("text");
+        String subtype = (String) obj.get("subtype");
+        return new SlackMessageImpl(text, bot, user, channel, SlackMessage.SlackMessageSubType.getByCode(subtype));
     }
 
 }

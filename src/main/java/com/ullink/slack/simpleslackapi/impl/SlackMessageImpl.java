@@ -12,16 +12,14 @@ class SlackMessageImpl implements SlackMessage
     private SlackBot            bot;
     private SlackChannel        channel;
     private SlackMessageSubType subType;
-    private String              timestamp;
 
-    SlackMessageImpl(String messageContent, SlackBot bot, SlackUser user, SlackChannel channel, SlackMessageSubType subType, String timestamp)
+    SlackMessageImpl(String messageContent, SlackBot bot, SlackUser user, SlackChannel channel, SlackMessageSubType subType)
     {
         this.channel = channel;
         this.messageContent = messageContent;
         this.user = user;
         this.bot = bot;
         this.subType = subType;
-        this.timestamp = timestamp;
     }
 
     @Override
@@ -52,11 +50,5 @@ class SlackMessageImpl implements SlackMessage
     public SlackMessageSubType getSubType()
     {
         return subType;
-    }
-
-    @Override
-    public String getTimeStamp()
-    {
-        return timestamp;
     }
 }
