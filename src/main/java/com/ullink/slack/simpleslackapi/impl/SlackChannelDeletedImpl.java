@@ -1,13 +1,13 @@
 package com.ullink.slack.simpleslackapi.impl;
 
 import com.ullink.slack.simpleslackapi.SlackChannel;
-import com.ullink.slack.simpleslackapi.events.SlackGroupJoined;
+import com.ullink.slack.simpleslackapi.events.SlackChannelDeleted;
 
-class SlackGroupJoinedImpl implements SlackGroupJoined
+public class SlackChannelDeletedImpl implements SlackChannelDeleted
 {
     private SlackChannel slackChannel;
 
-    SlackGroupJoinedImpl(SlackChannel slackChannel)
+    SlackChannelDeletedImpl(SlackChannel slackChannel)
     {
         this.slackChannel = slackChannel;
     }
@@ -16,11 +16,6 @@ class SlackGroupJoinedImpl implements SlackGroupJoined
     public SlackChannel getSlackChannel()
     {
         return slackChannel;
-    }
-
-    void setSlackChannel(SlackChannel slackChannel)
-    {
-        this.slackChannel = slackChannel;
     }
 
 }

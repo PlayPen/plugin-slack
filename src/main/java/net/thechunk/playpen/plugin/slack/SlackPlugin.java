@@ -2,6 +2,7 @@ package net.thechunk.playpen.plugin.slack;
 
 import com.google.common.base.Joiner;
 import com.ullink.slack.simpleslackapi.*;
+import com.ullink.slack.simpleslackapi.impl.SlackChatConfiguration;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import lombok.extern.log4j.Log4j2;
 import net.thechunk.playpen.coordinator.CoordinatorMode;
@@ -11,7 +12,9 @@ import net.thechunk.playpen.p3.P3Package;
 import net.thechunk.playpen.plugin.AbstractPlugin;
 import net.thechunk.playpen.plugin.EventManager;
 import net.thechunk.playpen.plugin.IPlugin;
+import org.apache.logging.log4j.Level;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -22,7 +25,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
     private SlackUser user = null;
 
     public void sendMessage(String message) {
-        session.sendMessage(channel, message, null, "playpen", null);
+        session.sendMessage(channel, message, null, SlackChatConfiguration.getConfiguration().asUser().withName("playpen"));
     }
 
     @Override
@@ -34,7 +37,13 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         session = SlackSessionFactory.createWebSocketSlackSession(getConfig().getString("api-key"));
         session.addMessageListener(this);
-        session.connect();
+        try {
+            session.connect();
+        }
+        catch(IOException e) {
+            log.log(Level.FATAL, "Unable to connect to slack", e);
+            return false;
+        }
 
         channel = session.findChannelByName(getConfig().getString("channel"));
         user = session.findUserByUserName("playpen");
