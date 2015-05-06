@@ -59,6 +59,10 @@
                             <pattern>org.glassfish.tyrus</pattern>
                             <shadedPattern>net.thechunk.playpen.plugin.slack.internal.tyrus</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.apache.http</pattern>
+                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.http</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
             </plugin>
