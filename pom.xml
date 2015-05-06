@@ -44,6 +44,9 @@
                             <include>com.googlecode.json-simple:json-simple</include>
                             <include>javax.websocket:javax.websocket-api</include>
                             <include>org.glassfish.tyrus.bundles:tyrus-standalone-client</include>
+                            <include>org.apache.httpcomponents:httpclient</include>
+                            <include>org.apache.httpcomponents:httpcore</include>
+                            <include>commons-logging:commons-logging</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -58,6 +61,14 @@
                         <relocation>
                             <pattern>org.glassfish.tyrus</pattern>
                             <shadedPattern>net.thechunk.playpen.plugin.slack.internal.tyrus</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.apache.http</pattern>
+                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.http</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.apache.commons.logging</pattern>
+                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.logging</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -92,6 +103,11 @@
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
             <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
         </dependency>
     </dependencies>
 </project>
