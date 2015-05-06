@@ -45,6 +45,8 @@
                             <include>javax.websocket:javax.websocket-api</include>
                             <include>org.glassfish.tyrus.bundles:tyrus-standalone-client</include>
                             <include>org.apache.httpcomponents:httpclient</include>
+                            <include>org.apache.httpcomponents:httpcore</include>
+                            <include>commons-logging:commons-logging</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -63,6 +65,10 @@
                         <relocation>
                             <pattern>org.apache.http</pattern>
                             <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.http</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.apache.commons.logging</pattern>
+                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.logging</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
