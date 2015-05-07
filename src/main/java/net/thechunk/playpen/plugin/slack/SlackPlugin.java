@@ -522,7 +522,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
     private void runFreezeCommand(String[] args) {
         if(args.length != 4) {
             sendMessage("Usage: @playpen freeze <coordinator> <server>\n" +
-                    "Sends a command to the console of a server." +
+                    "Marks a server as frozen. Frozen servers will have their state saved for debugging on deprovision." +
                     "Coordinator and server accept regex.\n" +
                     "For safety, all regex will have ^ prepended and $ appended.");
             return;
