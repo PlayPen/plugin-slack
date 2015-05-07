@@ -97,6 +97,14 @@ class SlackWebSocketSessionImpl extends AbstractSlackSessionImpl implements Slac
                 // TODO: handle this case
             }
         }
+        if(websocketSession != null && websocketSession.isOpen()) {
+            try {
+                websocketSession.close();
+            }
+            catch(IOException e) {
+                // meh
+            }
+        }
         LOGGER.info("connecting to slack");
         lastConnectionTime = currentTime;
         try

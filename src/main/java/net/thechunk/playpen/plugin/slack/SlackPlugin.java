@@ -51,6 +51,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         }
 
         Network.get().getScheduler().scheduleAtFixedRate(() -> {
+
             session.connect();
         }, 5, 5, TimeUnit.MINUTES);
 
