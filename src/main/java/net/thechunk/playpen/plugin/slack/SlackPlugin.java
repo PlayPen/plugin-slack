@@ -13,6 +13,7 @@ import net.thechunk.playpen.plugin.EventManager;
 import net.thechunk.playpen.plugin.IPlugin;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Log4j2
@@ -48,6 +49,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
             log.fatal("Unable to find user playpen");
             return false;
         }
+
+        Network.get().getScheduler().scheduleAtFixedRate(() -> {
+            session.connect();
+        }, 5, 5, TimeUnit.MINUTES);
 
         return Network.get().getEventManager().registerListener(this);
     }
