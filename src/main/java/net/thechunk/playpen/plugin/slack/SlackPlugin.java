@@ -156,7 +156,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
                 case "help":
                     sendMessage("Available commands:\n" +
                             "help, list, show, provision, deprovision, shutdown, promote, send, freeze, " +
-                            "list-packages, list-plugins, pass");
+                            "list-packages, list-plugins, pass, stats");
                     break;
 
                 case "list":
@@ -201,6 +201,10 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
                 case "pass":
                     runPassCommand(args);
+                    break;
+
+                case "stats":
+                    runStatsCommand(args);
                     break;
             }
         }
@@ -614,5 +618,58 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         String[] commandArgs = Arrays.copyOfRange(args, 2, args.length);
         Network.get().pluginMessage(this, "command", commandArgs);
+    }
+
+    private void runStatsCommand(String[] args) {
+        if(args.length != 2) {
+            sendMessage("Usage: @playpen stats");
+            return;
+        }
+
+        sendMessage("One moment please...");
+
+        String result = "*Local Resources:*\n";
+
+        Map<String, Integer> totalResources = new HashMap<>();
+        Map<String, Integer> usedResources = new HashMap<>();
+        for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
+            result += "\t" + coord.getName() + ":";
+            Map<String, Integer> localResources = coord.getResources();
+            Map<String, Integer> usedLocalResources = coord.getAvailableResources();
+            for(Map.Entry<String, Integer> res : localResources.entrySet()) {
+                result += "\t\t" + res.getKey() + ": ";
+                totalResources.put(res.getKey(), totalResources.getOrDefault(res.getKey(), 0) + res.getValue());
+
+                if(usedLocalResources.containsKey(res.getKey())) {
+                    Integer value = usedLocalResources.get(res.getKey());
+                    value = res.getValue() - value;
+                    result += value + " / ";
+                    usedResources.put(res.getKey(), usedResources.getOrDefault(res.getKey(), 0) + value);
+                }
+                else
+                    result += "? / ";
+
+                result += res.getValue() + " used\n";
+            }
+        }
+
+        result += "*Total Resources:*\n";
+        for(Map.Entry<String, Integer> res : totalResources.entrySet()) {
+            result += "\t" + res.getKey() + ": ";
+            totalResources.put(res.getKey(), totalResources.getOrDefault(res.getKey(), 0) + res.getValue());
+
+            if(usedResources.containsKey(res.getKey())) {
+                Integer value = usedResources.get(res.getKey());
+                value = res.getValue() - value;
+                result += value + " / ";
+                usedResources.put(res.getKey(), usedResources.getOrDefault(res.getKey(), 0) + value);
+            }
+            else
+                result += "? / ";
+
+            result += res.getValue() + " used\n";
+        }
+
+        sendMessage(result);
     }
 }
