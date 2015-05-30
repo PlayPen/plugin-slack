@@ -633,7 +633,9 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         Map<String, Integer> totalResources = new HashMap<>();
         Map<String, Integer> usedResources = new HashMap<>();
         for(LocalCoordinator coord : Network.get().getCoordinators().values()) {
-            result += "\t" + coord.getName() + ":";
+            if(!coord.isEnabled())
+                continue;
+            result += "\t*" + coord.getName() + "*:\n";
             Map<String, Integer> localResources = coord.getResources();
             Map<String, Integer> usedLocalResources = coord.getAvailableResources();
             for(Map.Entry<String, Integer> res : localResources.entrySet()) {
