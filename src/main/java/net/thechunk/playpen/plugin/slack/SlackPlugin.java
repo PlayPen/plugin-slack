@@ -658,13 +658,9 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
         result += "*Total Resources:*\n";
         for(Map.Entry<String, Integer> res : totalResources.entrySet()) {
             result += "\t" + res.getKey() + ": ";
-            totalResources.put(res.getKey(), totalResources.getOrDefault(res.getKey(), 0) + res.getValue());
 
             if(usedResources.containsKey(res.getKey())) {
-                Integer value = usedResources.get(res.getKey());
-                value = res.getValue() - value;
-                result += value + " / ";
-                usedResources.put(res.getKey(), usedResources.getOrDefault(res.getKey(), 0) + value);
+                result += usedResources.get(res.getKey()) + " / ";
             }
             else
                 result += "? / ";
