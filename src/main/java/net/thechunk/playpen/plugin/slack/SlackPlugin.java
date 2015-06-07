@@ -596,7 +596,7 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
     private void runListPluginsCommand(String[] args) {
         if(args.length != 2) {
-            sendMessage("Usage: @playpen list-packages\n" +
+            sendMessage("Usage: @playpen list-plugins\n" +
                     "Displays a list of all plugins on the network coordinator.");
             return;
         }
