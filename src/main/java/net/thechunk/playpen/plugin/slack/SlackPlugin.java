@@ -1,6 +1,7 @@
 package net.thechunk.playpen.plugin.slack;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ComparisonChain;
 import com.ullink.slack.simpleslackapi.*;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import lombok.extern.log4j.Log4j2;
@@ -581,10 +582,16 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
             return;
         }
 
-        Set<P3Package.P3PackageInfo> p3list = Network.get().getPackageManager().getPackageList();
+        List<P3Package.P3PackageInfo> p3list = new ArrayList<>(Network.get().getPackageManager().getPackageList());
         if(p3list.size() == 0) {
             sendMessage("There are no packages for me to list!");
+            return;
         }
+
+        Collections.sort(p3list, (p1, p2) -> ComparisonChain.start()
+                .compare(p1.getId(), p2.getId())
+                .compare(p1.getVersion(), p2.getVersion())
+                .result());
 
         String result = "";
         for(P3Package.P3PackageInfo p3info : p3list) {
