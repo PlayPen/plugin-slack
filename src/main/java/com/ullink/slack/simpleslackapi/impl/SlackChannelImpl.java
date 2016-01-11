@@ -2,6 +2,7 @@ package com.ullink.slack.simpleslackapi.impl;
 
 import com.ullink.slack.simpleslackapi.SlackChannel;
 import com.ullink.slack.simpleslackapi.SlackUser;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

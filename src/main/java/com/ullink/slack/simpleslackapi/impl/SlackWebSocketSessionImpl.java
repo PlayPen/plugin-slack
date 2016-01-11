@@ -1,18 +1,7 @@
 package com.ullink.slack.simpleslackapi.impl;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Proxy;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.MessageHandler;
-import javax.websocket.Session;
+import com.google.common.io.CharStreams;
+import com.ullink.slack.simpleslackapi.*;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -30,15 +19,20 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.io.CharStreams;
-import com.ullink.slack.simpleslackapi.SlackAttachment;
-import com.ullink.slack.simpleslackapi.SlackChannel;
-import com.ullink.slack.simpleslackapi.SlackGroupJoined;
-import com.ullink.slack.simpleslackapi.SlackMessage;
-import com.ullink.slack.simpleslackapi.SlackMessageHandle;
-import com.ullink.slack.simpleslackapi.SlackMessageListener;
-import com.ullink.slack.simpleslackapi.SlackReply;
-import com.ullink.slack.simpleslackapi.SlackSession;
+
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.Session;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Proxy;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 class SlackWebSocketSessionImpl extends AbstractSlackSessionImpl implements SlackSession, MessageHandler.Whole<String>
 {

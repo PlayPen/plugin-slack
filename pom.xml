@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.thechunk.playpen.plugin</groupId>
+    <groupId>io.playpen.plugin</groupId>
     <artifactId>SlackPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -52,23 +52,23 @@
                     <relocations>
                         <relocation>
                             <pattern>org.json.simple</pattern>
-                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.json</shadedPattern>
+                            <shadedPattern>io.playpen.plugin.slack.internal.json</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>javax.websocket</pattern>
-                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.websocket</shadedPattern>
+                            <shadedPattern>io.playpen.plugin.slack.internal.websocket</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.glassfish.tyrus</pattern>
-                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.tyrus</shadedPattern>
+                            <shadedPattern>io.playpen.plugin.slack.internal.tyrus</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.apache.http</pattern>
-                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.http</shadedPattern>
+                            <shadedPattern>io.playpen.plugin.slack.internal.apache.http</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.apache.commons.logging</pattern>
-                            <shadedPattern>net.thechunk.playpen.plugin.slack.internal.apache.logging</shadedPattern>
+                            <shadedPattern>io.playpen.plugin.slack.internal.apache.logging</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -84,7 +84,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.thechunk</groupId>
+            <groupId>io.playpen</groupId>
             <artifactId>PlayPen</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>

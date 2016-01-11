@@ -1,16 +1,8 @@
 package com.ullink.slack.simpleslackapi.impl;
 
-import com.ullink.slack.simpleslackapi.SlackBot;
-import com.ullink.slack.simpleslackapi.SlackChannel;
-import com.ullink.slack.simpleslackapi.SlackMessageListener;
-import com.ullink.slack.simpleslackapi.SlackSession;
-import com.ullink.slack.simpleslackapi.SlackUser;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.ullink.slack.simpleslackapi.*;
+
+import java.util.*;
 
 abstract class AbstractSlackSessionImpl implements SlackSession
 {

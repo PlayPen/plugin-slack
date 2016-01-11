@@ -1,15 +1,7 @@
 package com.ullink.slack.simpleslackapi.impl;
 
+import com.ullink.slack.simpleslackapi.*;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.ullink.slack.simpleslackapi.SlackBot;
-import com.ullink.slack.simpleslackapi.SlackChannel;
-import com.ullink.slack.simpleslackapi.SlackMessage;
-import com.ullink.slack.simpleslackapi.SlackSession;
-import com.ullink.slack.simpleslackapi.SlackUser;
 
 class SlackJSONMessageParser
 {

@@ -1,9 +1,10 @@
 package com.ullink.slack.simpleslackapi.impl;
 
-import java.util.Map;
+import com.ullink.slack.simpleslackapi.SlackUser;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import com.ullink.slack.simpleslackapi.SlackUser;
+
+import java.util.Map;
 
 class SlackJSONParsingUtils
 {

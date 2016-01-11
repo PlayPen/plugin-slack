@@ -1,17 +1,17 @@
-package net.thechunk.playpen.plugin.slack;
+package io.playpen.plugin.slack;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ComparisonChain;
 import com.ullink.slack.simpleslackapi.*;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
+import io.playpen.core.coordinator.CoordinatorMode;
+import io.playpen.core.coordinator.PlayPen;
+import io.playpen.core.coordinator.network.*;
+import io.playpen.core.p3.P3Package;
+import io.playpen.core.plugin.AbstractPlugin;
+import io.playpen.core.plugin.EventManager;
+import io.playpen.core.plugin.IPlugin;
 import lombok.extern.log4j.Log4j2;
-import net.thechunk.playpen.coordinator.CoordinatorMode;
-import net.thechunk.playpen.coordinator.PlayPen;
-import net.thechunk.playpen.coordinator.network.*;
-import net.thechunk.playpen.p3.P3Package;
-import net.thechunk.playpen.plugin.AbstractPlugin;
-import net.thechunk.playpen.plugin.EventManager;
-import net.thechunk.playpen.plugin.IPlugin;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +53,8 @@ public class SlackPlugin extends AbstractPlugin implements INetworkListener, Sla
 
         Network.get().getScheduler().scheduleAtFixedRate(() -> {
 
-            session.connect();
+            session.connect(); // slack gets disconnected occasionally, not sure why. reconnect every 5 minutes.
+                               // TODO: Fix this hacky POS
         }, 5, 5, TimeUnit.MINUTES);
 
         return Network.get().getEventManager().registerListener(this);

@@ -1,8 +1,9 @@
 package com.ullink.slack.simpleslackapi.impl;
 
-import java.util.concurrent.TimeUnit;
 import com.ullink.slack.simpleslackapi.SlackMessageHandle;
 import com.ullink.slack.simpleslackapi.SlackReply;
+
+import java.util.concurrent.TimeUnit;
 
 class SlackMessageHandleImpl implements SlackMessageHandle
 {
